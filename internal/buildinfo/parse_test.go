@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/uw-labs/lichen/internal/buildinfo"
-	"github.com/uw-labs/lichen/internal/model"
+	"github.com/selesy/lichen/internal/buildinfo"
+	"github.com/selesy/lichen/internal/model"
 )
 
 func TestParse(t *testing.T) {
@@ -20,15 +20,15 @@ func TestParse(t *testing.T) {
 		{
 			name: "basic single binary input",
 			input: `/tmp/lichen: go1.14.4
-	path	github.com/uw-labs/lichen
-	mod	github.com/uw-labs/lichen	(devel)	
+	path	github.com/selesy/lichen
+	mod	github.com/selesy/lichen	(devel)	
 	dep	github.com/cpuguy83/go-md2man/v2	v2.0.0-20190314233015-f79a8a8ca69d	h1:U+s90UTSYgptZMwQh2aRr3LuazLJIa+Pg3Kc1ylSYVY=
 `,
 			expected: []model.BuildInfo{
 				{
 					Path:        "/tmp/lichen",
-					PackagePath: "github.com/uw-labs/lichen",
-					ModulePath:  "github.com/uw-labs/lichen",
+					PackagePath: "github.com/selesy/lichen",
+					ModulePath:  "github.com/selesy/lichen",
 					ModuleRefs: []model.ModuleReference{
 						{
 							Path:    "github.com/cpuguy83/go-md2man/v2",
@@ -41,19 +41,19 @@ func TestParse(t *testing.T) {
 		{
 			name: "single binary input with dep replace",
 			input: `/tmp/lichen: go1.14
-	path	github.com/uw-labs/lichen
-	mod	github.com/uw-labs/lichen	(devel)	
+	path	github.com/selesy/lichen
+	mod	github.com/selesy/lichen	(devel)	
 	dep	github.com/cpuguy83/go-md2man/v2	v2.0.0-20190314233015-f79a8a8ca69d
-	=>	github.com/uw-labs/go-md2man/v2	v0.4.16-0.20200608113539-44d3cd590db7	h1:7JSMFy7v19QNuP77yBMWawhzb9xD82oPmrlda5yrBkE=
+	=>	github.com/selesy/go-md2man/v2	v0.4.16-0.20200608113539-44d3cd590db7	h1:7JSMFy7v19QNuP77yBMWawhzb9xD82oPmrlda5yrBkE=
 `,
 			expected: []model.BuildInfo{
 				{
 					Path:        "/tmp/lichen",
-					PackagePath: "github.com/uw-labs/lichen",
-					ModulePath:  "github.com/uw-labs/lichen",
+					PackagePath: "github.com/selesy/lichen",
+					ModulePath:  "github.com/selesy/lichen",
 					ModuleRefs: []model.ModuleReference{
 						{
-							Path:    "github.com/uw-labs/go-md2man/v2",
+							Path:    "github.com/selesy/go-md2man/v2",
 							Version: "v0.4.16-0.20200608113539-44d3cd590db7",
 						},
 					},
@@ -63,19 +63,19 @@ func TestParse(t *testing.T) {
 		{
 			name: "basic multi binary input",
 			input: `/tmp/lichen: go1.14.4
-	path	github.com/uw-labs/lichen
-	mod	github.com/uw-labs/lichen	(devel)	
+	path	github.com/selesy/lichen
+	mod	github.com/selesy/lichen	(devel)	
 	dep	github.com/cpuguy83/go-md2man/v2	v2.0.0-20190314233015-f79a8a8ca69d	h1:U+s90UTSYgptZMwQh2aRr3LuazLJIa+Pg3Kc1ylSYVY=
 /tmp/lichen2: go1.14.4
-	path	github.com/uw-labs/lichen
-	mod	github.com/uw-labs/lichen	(devel)	
+	path	github.com/selesy/lichen
+	mod	github.com/selesy/lichen	(devel)	
 	dep	github.com/google/goterm	v0.0.0-20190703233501-fc88cf888a3f	h1:U+s90UTSYgptZMwQh2aRr3LuazLJIa+Pg3Kc1ylSYVY=
 `,
 			expected: []model.BuildInfo{
 				{
 					Path:        "/tmp/lichen",
-					PackagePath: "github.com/uw-labs/lichen",
-					ModulePath:  "github.com/uw-labs/lichen",
+					PackagePath: "github.com/selesy/lichen",
+					ModulePath:  "github.com/selesy/lichen",
 					ModuleRefs: []model.ModuleReference{
 						{
 							Path:    "github.com/cpuguy83/go-md2man/v2",
@@ -85,8 +85,8 @@ func TestParse(t *testing.T) {
 				},
 				{
 					Path:        "/tmp/lichen2",
-					PackagePath: "github.com/uw-labs/lichen",
-					ModulePath:  "github.com/uw-labs/lichen",
+					PackagePath: "github.com/selesy/lichen",
+					ModulePath:  "github.com/selesy/lichen",
 					ModuleRefs: []model.ModuleReference{
 						{
 							Path:    "github.com/google/goterm",
@@ -99,15 +99,15 @@ func TestParse(t *testing.T) {
 		{
 			name: "windows basic single binary input",
 			input: `C:\lichen.exe: go1.14.4
-	path	github.com/uw-labs/lichen
-	mod	github.com/uw-labs/lichen	(devel)	
+	path	github.com/selesy/lichen
+	mod	github.com/selesy/lichen	(devel)	
 	dep	github.com/cpuguy83/go-md2man/v2	v2.0.0-20190314233015-f79a8a8ca69d	h1:U+s90UTSYgptZMwQh2aRr3LuazLJIa+Pg3Kc1ylSYVY=
 `,
 			expected: []model.BuildInfo{
 				{
 					Path:        `C:\lichen.exe`,
-					PackagePath: "github.com/uw-labs/lichen",
-					ModulePath:  "github.com/uw-labs/lichen",
+					PackagePath: "github.com/selesy/lichen",
+					ModulePath:  "github.com/selesy/lichen",
 					ModuleRefs: []model.ModuleReference{
 						{
 							Path:    "github.com/cpuguy83/go-md2man/v2",
@@ -156,8 +156,8 @@ func TestParse(t *testing.T) {
 		{
 			name: "1.18 compiled binary with `build` lines",
 			input: `/tmp/lichen: go1.18beta2
-	path	github.com/uw-labs/lichen
-	mod	github.com/uw-labs/lichen	(devel)	
+	path	github.com/selesy/lichen
+	mod	github.com/selesy/lichen	(devel)	
 	dep	github.com/cpuguy83/go-md2man/v2	v2.0.0-20190314233015-f79a8a8ca69d	h1:U+s90UTSYgptZMwQh2aRr3LuazLJIa+Pg3Kc1ylSYVY=
 	build	-compiler=gc
 	build	CGO_ENABLED=1
@@ -166,8 +166,8 @@ func TestParse(t *testing.T) {
 			expected: []model.BuildInfo{
 				{
 					Path:        `/tmp/lichen`,
-					PackagePath: "github.com/uw-labs/lichen",
-					ModulePath:  "github.com/uw-labs/lichen",
+					PackagePath: "github.com/selesy/lichen",
+					ModulePath:  "github.com/selesy/lichen",
 					ModuleRefs: []model.ModuleReference{
 						{
 							Path:    "github.com/cpuguy83/go-md2man/v2",
@@ -180,8 +180,8 @@ func TestParse(t *testing.T) {
 		{
 			name: "superfluous blank line (observed Go 1.18+)",
 			input: `/tmp/lichen: go1.18
-	path	github.com/uw-labs/lichen
-	mod	github.com/uw-labs/lichen	(devel)	
+	path	github.com/selesy/lichen
+	mod	github.com/selesy/lichen	(devel)	
 	dep	github.com/lyft/protoc-gen-star	v0.6.0
 	=>	github.com/johanbrandhorst/protoc-gen-star	v0.4.16-0.20200806111151-9a8e34bf9dea	
 	
@@ -190,8 +190,8 @@ func TestParse(t *testing.T) {
 			expected: []model.BuildInfo{
 				{
 					Path:        `/tmp/lichen`,
-					PackagePath: "github.com/uw-labs/lichen",
-					ModulePath:  "github.com/uw-labs/lichen",
+					PackagePath: "github.com/selesy/lichen",
+					ModulePath:  "github.com/selesy/lichen",
 					ModuleRefs: []model.ModuleReference{
 						{
 							Path:    "github.com/johanbrandhorst/protoc-gen-star",
@@ -210,14 +210,14 @@ func TestParse(t *testing.T) {
 			input: `lichen: go1.18.1
 	path	command-line-arguments
 	dep	github.com/cpuguy83/go-md2man/v2	v2.0.1	h1:r/myEWzV9lfsM1tFLgDyu0atFtJ1fXn261LKYj/3DxU=
-	dep	github.com/uw-labs/lichen	(devel)	
+	dep	github.com/selesy/lichen	(devel)	
 	dep	golang.org/x/sys	v0.0.0-20210630005230-0f9fa26af87c	h1:F1jZWGFhYfh0Ci55sIpILtKKK8p3i2/krTr0H1rg74I=
 `,
 			expected: []model.BuildInfo{
 				{
 					Path:        `lichen`,
 					PackagePath: "command-line-arguments",
-					ModulePath:  "github.com/uw-labs/lichen",
+					ModulePath:  "github.com/selesy/lichen",
 					ModuleRefs: []model.ModuleReference{
 						{
 							Path:    "github.com/cpuguy83/go-md2man/v2",

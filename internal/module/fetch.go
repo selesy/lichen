@@ -12,7 +12,7 @@ import (
 	"os/exec"
 
 	"github.com/hashicorp/go-multierror"
-	"github.com/uw-labs/lichen/internal/model"
+	"github.com/selesy/lichen/internal/model"
 )
 
 func Fetch(ctx context.Context, refs []model.ModuleReference) ([]model.Module, error) {

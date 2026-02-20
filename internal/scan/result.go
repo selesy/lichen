@@ -3,7 +3,7 @@ package scan
 import (
 	"fmt"
 
-	"github.com/uw-labs/lichen/internal/model"
+	"github.com/selesy/lichen/internal/model"
 )
 
 type Summary struct {

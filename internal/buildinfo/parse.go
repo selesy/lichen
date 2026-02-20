@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/uw-labs/lichen/internal/model"
+	"github.com/selesy/lichen/internal/model"
 )
 
 var goVersionRgx = regexp.MustCompile(`^(.*?): (?:(?:devel )?go[0-9]+|devel \+[0-9a-f]+)`)

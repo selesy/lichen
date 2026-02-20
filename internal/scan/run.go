@@ -4,9 +4,9 @@ import (
 	"context"
 	"sort"
 
-	"github.com/uw-labs/lichen/internal/license"
-	"github.com/uw-labs/lichen/internal/model"
-	"github.com/uw-labs/lichen/internal/module"
+	"github.com/selesy/lichen/internal/license"
+	"github.com/selesy/lichen/internal/model"
+	"github.com/selesy/lichen/internal/module"
 )
 
 const defaultThreshold = 0.80
