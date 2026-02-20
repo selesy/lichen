@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"os"
 )
 
@@ -28,13 +29,22 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			slog.Error("failed to close binary", slog.String("reason", err.Error()))
+		}
+	}()
 
 	w, err := os.Create(os.Args[2])
 	if err != nil {
 		return err
 	}
-	defer w.Close()
+
+	defer func() {
+		if err := w.Close(); err != nil {
+			slog.Error("failed to close report", slog.String("reason", err.Error()))
+		}
+	}()
 
 	buf := &bytes.Buffer{}
 	encoder := ascii85.NewEncoder(buf)
@@ -52,7 +62,9 @@ func run() error {
 		return err
 	}
 
-	fmt.Fprintf(w, tmpl, buf.String())
+	if _, err := fmt.Fprintf(w, tmpl, buf.String()); err != nil {
+		slog.Error("failed to write report", slog.String("reason", err.Error()))
+	}
 
 	return nil
 }

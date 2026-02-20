@@ -4,7 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/uw-labs/lichen/internal/model"
+
+	"github.com/selesy/lichen/internal/model"
 )
 
 func TestModuleReference_IsLocal(t *testing.T) {

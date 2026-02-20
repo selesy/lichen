@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -13,8 +13,9 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/muesli/termenv"
 	"github.com/urfave/cli/v2"
-	"github.com/uw-labs/lichen/internal/scan"
 	"gopkg.in/yaml.v2"
+
+	"github.com/selesy/lichen/internal/scan"
 )
 
 const tmpl = `{{range .Modules}}
@@ -92,7 +93,7 @@ func run(c *cli.Context) error {
 	var rErr error
 	for _, m := range summary.Modules {
 		if !m.Allowed() {
-			rErr = multierror.Append(rErr, fmt.Errorf("%s: %s", m.Module.ModuleReference, m.ExplainDecision()))
+			rErr = multierror.Append(rErr, fmt.Errorf("%s: %s", m.ModuleReference, m.ExplainDecision()))
 		}
 	}
 	return rErr
@@ -101,7 +102,18 @@ func run(c *cli.Context) error {
 func parseConfig(path string) (scan.Config, error) {
 	var conf scan.Config
 	if path != "" {
-		b, err := ioutil.ReadFile(path)
+		// normalize the path
+		path, err := filepath.Abs(path)
+		if err != nil {
+			return conf, err
+		}
+		// resolve symlinks to prevent directory traversal attacks
+		path, err = filepath.EvalSymlinks(path)
+		if err != nil {
+			return conf, err
+		}
+
+		b, err := os.ReadFile(path)
 		if err != nil {
 			return scan.Config{}, fmt.Errorf("failed to read file %q: %w", path, err)
 		}
@@ -125,11 +137,28 @@ func absolutePaths(paths []string) ([]string, error) {
 }
 
 func writeJSON(path string, summary scan.Summary) error {
+	// normalize the path
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return err
+	}
+	// resolve symlinks to prevent directory traversal attacks
+	path, err = filepath.EvalSymlinks(path)
+	if err != nil {
+		return err
+	}
+
 	f, err := os.Create(path)
 	if err != nil {
 		return fmt.Errorf("failed to create file for json output: %w", err)
 	}
-	defer f.Close()
+
+	defer func() {
+		if err := f.Close(); err != nil {
+			slog.Error("failed to close file for json output", slog.String("reason", err.Error()))
+		}
+	}()
+
 	if err := json.NewEncoder(f).Encode(summary); err != nil {
 		return fmt.Errorf("json encode failed: %w", err)
 	}

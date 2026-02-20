@@ -1,4 +1,4 @@
-module github.com/uw-labs/lichen
+module github.com/selesy/lichen
 
 go 1.18
 

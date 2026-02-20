@@ -3,13 +3,15 @@ package license
 import (
 	"fmt"
 	"io/ioutil"
+	"log/slog"
 	"path/filepath"
 	"regexp"
 	"strings"
 
 	"github.com/google/licenseclassifier"
-	"github.com/uw-labs/lichen/internal/license/db"
-	"github.com/uw-labs/lichen/internal/model"
+
+	"github.com/selesy/lichen/internal/license/db"
+	"github.com/selesy/lichen/internal/model"
 )
 
 // Resolve inspects each module and determines what it is licensed under. The returned slice contains each
@@ -18,9 +20,15 @@ func Resolve(modules []model.Module, threshold float64) ([]model.Module, error) 
 	archiveFn := licenseclassifier.ArchiveFunc(func() ([]byte, error) {
 		f, err := db.Open()
 		if err != nil {
-			return nil, fmt.Errorf("failed to open license databse: %w", err)
+			return nil, fmt.Errorf("failed to open license database: %w", err)
 		}
-		defer f.Close()
+
+		defer func() {
+			if err := f.Close(); err != nil {
+				slog.Error("failed to close license database", slog.String("reason", err.Error()))
+			}
+		}()
+
 		return ioutil.ReadAll(f)
 	})
 
@@ -32,7 +40,7 @@ func Resolve(modules []model.Module, threshold float64) ([]model.Module, error) 
 	for i, m := range modules {
 		if m.IsLocal() {
 			// there is no guarantee we are being run in a location that makes local module references resolvable.. to
-			// avoid incidental and non-obvious behaviour here, we simply don't touch such references - overrides must
+			// avoid incidental and non-obvious behavior here, we simply don't touch such references - overrides must
 			// be provided instead.
 			continue
 		}
@@ -71,6 +79,17 @@ func locateLicenses(path string) (lp []string, err error) {
 func classify(lc *licenseclassifier.License, paths []string) ([]model.License, error) {
 	licenses := make([]model.License, 0)
 	for _, p := range paths {
+		// normalize the path
+		p, err := filepath.Abs(p)
+		if err != nil {
+			return nil, err
+		}
+		// resolve symlinks to prevent directory traversal attacks
+		p, err = filepath.EvalSymlinks(p)
+		if err != nil {
+			return nil, err
+		}
+
 		content, err := ioutil.ReadFile(p)
 		if err != nil {
 			return nil, err

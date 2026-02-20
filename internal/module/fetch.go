@@ -7,12 +7,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"log/slog"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/hashicorp/go-multierror"
-	"github.com/uw-labs/lichen/internal/model"
+
+	"github.com/selesy/lichen/internal/model"
 )
 
 func Fetch(ctx context.Context, refs []model.ModuleReference) ([]model.Module, error) {
@@ -25,11 +27,32 @@ func Fetch(ctx context.Context, refs []model.ModuleReference) ([]model.Module, e
 		return nil, err
 	}
 
-	tempDir, err := ioutil.TempDir("", "lichen")
+	// normalize the path
+	goBin, err = filepath.Abs(goBin)
+	if err != nil {
+		return nil, err
+	}
+	// resolve symlinks to prevent directory traversal attacks
+	goBin, err = filepath.EvalSymlinks(goBin)
+	if err != nil {
+		return nil, err
+	}
+
+	// Validation: Ensure we actually found a 'go' binary
+	if filepath.Base(goBin) != "go" && filepath.Base(goBin) != "go.exe" {
+		return nil, errors.New("unexpected binary resolved")
+	}
+
+	tempDir, err := os.MkdirTemp("", "lichen")
 	if err != nil {
 		return nil, fmt.Errorf("failed to create temp directory: %w", err)
 	}
-	defer os.Remove(tempDir)
+
+	defer func() {
+		if err := os.Remove(tempDir); err != nil {
+			slog.Error("failed to remove temporary folder/files", slog.String("reason", err.Error()))
+		}
+	}()
 
 	args := []string{"mod", "download", "-json"}
 	for _, ref := range refs {
@@ -38,6 +61,8 @@ func Fetch(ctx context.Context, refs []model.ModuleReference) ([]model.Module, e
 		}
 	}
 
+	//nolint:gosec
+	// the goBin variable was sanitized above
 	cmd := exec.CommandContext(ctx, goBin, args...)
 	cmd.Dir = tempDir
 	out, err := cmd.CombinedOutput()

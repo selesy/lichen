@@ -2,14 +2,17 @@ package module
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"io/ioutil"
+	"log/slog"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/hashicorp/go-multierror"
-	"github.com/uw-labs/lichen/internal/buildinfo"
-	"github.com/uw-labs/lichen/internal/model"
+
+	"github.com/selesy/lichen/internal/buildinfo"
+	"github.com/selesy/lichen/internal/model"
 )
 
 // Extract extracts build information from the supplied binaries
@@ -50,20 +53,43 @@ func goVersion(ctx context.Context, paths []string) (string, error) {
 		return "", err
 	}
 
-	tempDir, err := ioutil.TempDir("", "lichen")
+	// normalize the path
+	goBin, err = filepath.Abs(goBin)
+	if err != nil {
+		return "", err
+	}
+	// resolve symlinks to prevent directory traversal attacks
+	goBin, err = filepath.EvalSymlinks(goBin)
+	if err != nil {
+		return "", err
+	}
+
+	// Validation: Ensure we actually found a 'go' binary
+	if filepath.Base(goBin) != "go" && filepath.Base(goBin) != "go.exe" {
+		return "", errors.New("unexpected binary resolved")
+	}
+
+	tempDir, err := os.MkdirTemp("", "lichen")
 	if err != nil {
 		return "", fmt.Errorf("failed to create temp directory: %w", err)
 	}
-	defer os.Remove(tempDir)
+	defer func() {
+		if err := os.Remove(tempDir); err != nil {
+			slog.Error("failed to remove temporary folder/files", slog.String("reason", err.Error()))
+		}
+	}()
 
 	args := []string{"version", "-m"}
 	args = append(args, paths...)
 
+	//nolint:gosec
+	// the goBin variable was sanitized above
 	cmd := exec.CommandContext(ctx, goBin, args...)
 	cmd.Dir = tempDir
 	out, err := cmd.Output()
 	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
+		exitErr := &exec.ExitError{}
+		if errors.As(err, &exitErr) {
 			return "", fmt.Errorf("error when running 'go version': %w - stderr: %s", err, exitErr.Stderr)
 		}
 		return "", fmt.Errorf("error when running 'go version': %w", err)
