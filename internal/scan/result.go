@@ -31,7 +31,7 @@ func (r EvaluatedModule) ExplainDecision() string {
 	case DecisionNotAllowedLicenseNotPermitted:
 		return fmt.Sprintf("not allowed - non-permitted licenses: %v", r.NotPermitted)
 	default:
-		panic("unrecognised decision")
+		panic("unrecognized decision")
 	}
 }
 
@@ -52,6 +52,6 @@ func (d Decision) MarshalText() ([]byte, error) {
 	case DecisionNotAllowedLicenseNotPermitted:
 		return []byte("licenses-not-allowed"), nil
 	default:
-		panic("unrecognised decision")
+		panic("unrecognized decision")
 	}
 }

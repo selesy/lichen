@@ -232,9 +232,9 @@ func TestParse(t *testing.T) {
 			},
 		},
 		{
-			name:        "unrecognised line",
+			name:        "unrecognized line",
 			input:       `/tmp/lichen: invalid`,
-			expectedErr: "unrecognised version line: /tmp/lichen: invalid",
+			expectedErr: "unrecognized version line: /tmp/lichen: invalid",
 		},
 		{
 			name: "partial path line",

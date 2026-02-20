@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
 	"github.com/selesy/lichen/internal/model"
 	"github.com/selesy/lichen/internal/module"
 )

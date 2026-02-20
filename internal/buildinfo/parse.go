@@ -28,7 +28,7 @@ func Parse(info string) ([]model.BuildInfo, error) {
 		if !strings.HasPrefix(l, "\t") {
 			matches := goVersionRgx.FindStringSubmatch(l)
 			if len(matches) != 2 {
-				return nil, fmt.Errorf("unrecognised version line: %s", l)
+				return nil, fmt.Errorf("unrecognized version line: %s", l)
 			}
 			if current.Path != "" {
 				results = append(results, current)
@@ -81,7 +81,7 @@ func Parse(info string) ([]model.BuildInfo, error) {
 		case "":
 			// blank (tab prefixed) lines appear after lines relating to replace directives in Go 1.18 compiled binaries
 		default:
-			return nil, fmt.Errorf("unrecognised line: %s", l)
+			return nil, fmt.Errorf("unrecognized line: %s", l)
 		}
 	}
 	if current.Path != "" {
