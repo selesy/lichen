@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.0](https://github.com/selesy/lichen/compare/v0.2.0...v0.3.0) (2026-02-21)
+
+
+### Features
+
+* **db:** update license database ([73ed129](https://github.com/selesy/lichen/commit/73ed12968fe48f06ec83798585fad6519e339e61))
+* **license:** also analyze files named UNLICENSE ([30fdc36](https://github.com/selesy/lichen/commit/30fdc366fc700d9459c81c3802efc4efca482e52))
+* **resolve:** also analyze files named UNLICENSE ([beec4c9](https://github.com/selesy/lichen/commit/beec4c9e58e1e1fb9ca11c8867f6e7a129e2ded8))
+
 ## [0.2.0](https://github.com/selesy/lichen/compare/v0.1.7...v0.2.0) (2026-02-20)
 
 
