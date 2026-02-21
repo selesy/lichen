@@ -1,11 +1,8 @@
 name: CI
 on:
   push:
-    branches-ignore:
-      - 'release-please-**'
+    branches: [main]
   pull_request:
-    branches-ignore:
-      - 'release-please-**'
 jobs:
   test:
     strategy:
